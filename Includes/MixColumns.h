@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
-void MixColumns(uint8_t [4][4]);
+void MixColumns(uint8_t state[4][4]);
+void InvMixColumns(uint8_t state[4][4]);
 
 #endif

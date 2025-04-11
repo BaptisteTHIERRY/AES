@@ -1,12 +1,13 @@
 INCLUDEDIR=./Includes
 AESDIR=./AES
+MODEDIR=./Modes
 CFLAGS=-std=c11 -Wall -Wextra -g
 CPPFLAGS=-I$(INCLUDEDIR)
 .PHONY= all clean remove help # test
 
 all: main
 
-main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o
+main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o
 	$(CC) $(CFLAGS) -o aes $^
 
 main.o: main.c $(INCLUDEDIR)/main.h
@@ -25,6 +26,9 @@ MixColumns.o: $(AESDIR)/MixColumns.c $(INCLUDEDIR)/MixColumns.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
 KeyExpansion.o:  $(AESDIR)/KeyExpansion.c $(INCLUDEDIR)/KeyExpansion.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
+
+ECB.o: $(MODEDIR)/ECB.c $(INCLUDEDIR)/ECB.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
 clean:
