@@ -1,7 +1,7 @@
 INCLUDEDIR=./Includes
 AESDIR=./AES
 MODEDIR=./Modes
-CFLAGS=-std=c11 -Wall -Wextra -g
+CFLAGS=-std=c11 -Wall -Wextra -g -O3
 CPPFLAGS=-I$(INCLUDEDIR)
 .PHONY= all clean remove help # test
 
@@ -35,18 +35,34 @@ clean:
 	@rm -f *.o $(INCLUDEDIR)/*.gch 
 
 remove: clean
-	@rm -f aes
+	@rm -f aes test
 
-# test : hitori hitori_test
-# 	./prog_test
-# 	valgrind -s ./hitori -a ../tests/grids_web/solving_x_solutions.txt
-# 	valgrind -s ./hitori -g8
+test: AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o test.o
+	$(CC) $(CFLAGS) -o test $^
+	@echo "Starting the test"
+	@./test
+	@echo "End of the test"
+	@make clean
+
+test.o: ./Tests/test.c $(INCLUDEDIR)/test.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
+
+test_cd : main
+	@./aes -i ./Tests/alice.sage -o ./Tests/alice.crypt
+	@./aes -d -i ./Tests/alice.crypt -o ./Tests/alice.decrypt
+	@( if [[ ! '$(diff -q ./Tests/alice.sage ./Tests/alice.decrypt)' = '' ]]; \
+		then echo "Erreur lors du chiffrement/dechiffrement"; \
+	  else \
+	  	echo "Chiffrement/Dechiffrement réussi sans erreurs"; \
+	  fi \
+	)
+	@make clean
 
 
 help: 
 	@echo "make all : build the project"
 	@echo "make clean : remove intermediate files of the compilation"
-	@echo "make remove : like make clean but remove also the main binary"
-#	@echo "make test : test the program"
+	@echo "make remove : like clean but remove also the binary"
+	@echo "make test : test the program"
 	@echo "make help : print this help"
 

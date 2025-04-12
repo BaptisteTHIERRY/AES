@@ -32,9 +32,9 @@ void ECB_encrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk){
         }
     }
     else{
-        fread(in, 1, (16 + sizeFileIn - index)%16, fileIn);
+        fread(in, 1, left, fileIn);
         for(int i = 0; i < pad; i++){
-            in[15-i] = (uint8_t) (pad-1);
+            in[15-i] = (uint8_t) pad;
         }
     }
 
@@ -73,7 +73,8 @@ void ECB_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk){
 
     fread(in,1,16,fileIn);
     AES_decrypt(in, out, w, Nk);
-    for(int i = 0; i < 15 - out[15]; i++){
+
+    for(int i = 0; i < 16 - out[15]; i++){
         fwrite(&out[i], 1, 1, fileOut);
     }
     free(w);

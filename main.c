@@ -71,6 +71,7 @@ int main(int argc, char **argv){
         exit(EXIT_FAILURE);
     }
 
+    // Default key
     for(int i = 0; i < 16; i++){
         key[i] = (uint8_t) i;
     }
@@ -157,5 +158,6 @@ int main(int argc, char **argv){
     fclose(fileIn);
     fclose(fileOut);
     free(key);
-    return 0;
+    
+    return EXIT_SUCCESS;
 }
