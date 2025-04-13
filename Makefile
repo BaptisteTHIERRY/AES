@@ -7,7 +7,7 @@ CPPFLAGS=-I$(INCLUDEDIR)
 
 all: main
 
-main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o
+main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o CBC.o
 	$(CC) $(CFLAGS) -o aes $^
 
 main.o: main.c $(INCLUDEDIR)/main.h
@@ -31,6 +31,9 @@ KeyExpansion.o:  $(AESDIR)/KeyExpansion.c $(INCLUDEDIR)/KeyExpansion.h
 ECB.o: $(MODEDIR)/ECB.c $(INCLUDEDIR)/ECB.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
+CBC.o: $(MODEDIR)/CBC.c $(INCLUDEDIR)/CBC.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
+
 clean:
 	@rm -f *.o $(INCLUDEDIR)/*.gch 
 
@@ -47,7 +50,7 @@ test: AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o test.o
 test.o: ./Tests/test.c $(INCLUDEDIR)/test.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
-test_cd : main
+test_ECB : main
 	@./aes -i ./Tests/alice.sage -o ./Tests/alice.crypt
 	@./aes -d -i ./Tests/alice.crypt -o ./Tests/alice.decrypt
 	@( if [[ ! '$(diff -q ./Tests/alice.sage ./Tests/alice.decrypt)' = '' ]]; \
@@ -58,6 +61,16 @@ test_cd : main
 	)
 	@make clean
 
+test_CBC: main
+	@./aes -i ./Tests/alice.sage -o ./Tests/alice.crypt -m CBC -I aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	@./aes -d -i ./Tests/alice.crypt -o ./Tests/alice.decrypt -m CBC -I aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	@( if [[ ! '$(diff -q ./Tests/alice.sage ./Tests/alice.decrypt)' = '' ]]; \
+		then echo "Erreur lors du chiffrement/dechiffrement"; \
+	  else \
+	  	echo "Chiffrement/Dechiffrement réussi sans erreurs"; \
+	  fi \
+	)
+	@make clean
 
 help: 
 	@echo "make all : build the project"

@@ -8,28 +8,6 @@ void handleError(char* str, FILE* fileIn, FILE* fileOut, uint8_t* key){
     exit(EXIT_FAILURE);
 }
 
-void ECB_modify(uint8_t* dataIn, uint8_t* dataOut, long sizeData, uint8_t in[16], uint8_t out[16], uint32_t *w){
-    long index = 0;
-    int i = 0;
-
-    while(index + 16 <= sizeData){
-        for(i = 0; i < 16; i++){in[i] = dataIn[index+i];} // Read 16 bytes of fileIn and store it in "in" 
-        AES_encrypt(in, out, w, 4);
-        for(i = 0; i < 16; i++){dataOut[index + i] = in[i];} // Write the 16 bytes of out in fileOut
-        index += 16;
-    }
-
-    // left = (16 + sizeData - index)%16
-    // pad = 16 - left
-
-    for(i = 0; i < (16 + sizeData - index)%16; i++){in[i] = dataIn[index+i];} // Last data
-    for(i = 0; i < 16 - (16 + sizeData - index)%16; i++){in[15-i] = (uint8_t) (16 - (16 + sizeData - index)%16);} // Padding
-
-    AES_encrypt(in, out, w, 4);
-    for(i = 0; i < 16; i++){dataOut[index + i] = out[i];}
-
-}
-
 int main(){
     uint8_t *key = malloc(sizeof(uint8_t) * 16);
     FILE* fileIn = NULL;
