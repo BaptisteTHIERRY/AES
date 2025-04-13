@@ -76,6 +76,6 @@ help:
 	@echo "make all : build the project"
 	@echo "make clean : remove intermediate files of the compilation"
 	@echo "make remove : like clean but remove also the binary"
-	@echo "make test : test the program"
+	@echo "make test : test the program and compute execution time"
 	@echo "make help : print this help"
 
