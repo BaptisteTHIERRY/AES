@@ -213,6 +213,16 @@ int main(int argc, char **argv){
                 CBC_decrypt(fileIn,fileOut,key,Nk,IV);
             }
             break;
+        case CFB :
+            if(!setIV){
+                printf("Warning ! Use of the default value of IV = 0\n");
+            }
+            if(operation == ENCRYPT){
+                CFB_encrypt(fileIn,fileOut,key,Nk,IV);
+            } else{
+                CFB_decrypt(fileIn,fileOut,key,Nk,IV);
+            }
+            break;
         default:
             handleError("Mode not implemented yet.\n",fileIn,fileOut,key);
             break;

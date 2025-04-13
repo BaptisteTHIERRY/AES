@@ -1,7 +1,7 @@
 # AES
 
 This project of M1 cryptography consist in implementing the algorithm AES in C with at least the mode ECB to encrypt and decrypt file of any size with key of legnth 128 bits.
-For now, only the ECB and CBC mode is implemented and the program can encrypt and decrypt file of any size with a key of size 128,192 or 256 bits.
+For now, the avaible mode are ECB,CBC and CFB. The program can encrypt and decrypt file of any size with a key of size 128,192 or 256 bits.
 
 ## Build 
 

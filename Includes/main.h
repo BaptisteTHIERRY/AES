@@ -17,6 +17,7 @@ enum CIPHER {ENCRYPT, DECRYPT};
 
 #include "ECB.h"
 #include "CBC.h"
+#include "CFB.h"
 #include <errno.h>
 #include <getopt.h>
 #include <math.h>

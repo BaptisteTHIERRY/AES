@@ -7,7 +7,7 @@ CPPFLAGS=-I$(INCLUDEDIR)
 
 all: main
 
-main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o CBC.o
+main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o blockXOR.o CBC.o CFB.o
 	$(CC) $(CFLAGS) -o aes $^
 
 main.o: main.c $(INCLUDEDIR)/main.h
@@ -31,7 +31,13 @@ KeyExpansion.o:  $(AESDIR)/KeyExpansion.c $(INCLUDEDIR)/KeyExpansion.h
 ECB.o: $(MODEDIR)/ECB.c $(INCLUDEDIR)/ECB.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
+blockXOR.o: $(MODEDIR)/blockXOR.c $(INCLUDEDIR)/blockXOR.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
+
 CBC.o: $(MODEDIR)/CBC.c $(INCLUDEDIR)/CBC.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
+
+CFB.o: $(MODEDIR)/CFB.c $(INCLUDEDIR)/CFB.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
 clean:
@@ -64,6 +70,17 @@ test_ECB : main
 test_CBC: main
 	@./aes -i ./Tests/alice.sage -o ./Tests/alice.crypt -m CBC -I aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 	@./aes -d -i ./Tests/alice.crypt -o ./Tests/alice.decrypt -m CBC -I aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	@( if [[ ! '$(diff -q ./Tests/alice.sage ./Tests/alice.decrypt)' = '' ]]; \
+		then echo "Erreur lors du chiffrement/dechiffrement"; \
+	  else \
+	  	echo "Chiffrement/Dechiffrement réussi sans erreurs"; \
+	  fi \
+	)
+	@make clean
+
+test_CFB: main
+	@./aes -i ./Tests/alice.sage -o ./Tests/alice.crypt -m CFB -I aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	@./aes -d -i ./Tests/alice.crypt -o ./Tests/alice.decrypt -m CFB -I aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 	@( if [[ ! '$(diff -q ./Tests/alice.sage ./Tests/alice.decrypt)' = '' ]]; \
 		then echo "Erreur lors du chiffrement/dechiffrement"; \
 	  else \
