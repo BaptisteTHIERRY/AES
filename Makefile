@@ -7,7 +7,7 @@ CPPFLAGS=-I$(INCLUDEDIR)
 
 all: main
 
-main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o blockXOR.o CBC.o CFB.o
+main: main.o AES.o SubBytes.o ShiftRows.o MixColumns.o KeyExpansion.o ECB.o blockXOR.o CBC.o CFB.o GCM.o
 	$(CC) $(CFLAGS) -o aes $^
 
 main.o: main.c $(INCLUDEDIR)/main.h
@@ -38,6 +38,9 @@ CBC.o: $(MODEDIR)/CBC.c $(INCLUDEDIR)/CBC.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
 CFB.o: $(MODEDIR)/CFB.c $(INCLUDEDIR)/CFB.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
+
+GCM.o: $(MODEDIR)/GCM.c $(INCLUDEDIR)/GCM.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $^
 
 clean:
@@ -87,6 +90,14 @@ test_CFB: main
 	  	echo "Chiffrement/Dechiffrement réussi sans erreurs"; \
 	  fi \
 	)
+	@make clean
+
+test_GCM: main
+### Nist test : 
+	@./aes -i ./Tests/GCM_clair.txt -o ./Tests/GCM_chiffre -m GCM -I cafebabefacedbaddecaf888 -k feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308 -A feedfacedeadbeeffeedfacedeadbeefabaddad2
+	@head --lines=-2 ./Tests/GCM_chiffre | xxd -p
+	@tail -n 1 ./Tests/GCM_chiffre
+	@echo ""
 	@make clean
 
 help: 
