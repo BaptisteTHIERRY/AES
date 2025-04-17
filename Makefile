@@ -1,7 +1,7 @@
 INCLUDEDIR=./Includes
 AESDIR=./AES
 MODEDIR=./Modes
-CFLAGS=-std=c11 -Wall -Wextra -g -O3
+CFLAGS=-std=c11 -Wall -Wextra -g -O0
 CPPFLAGS=-I$(INCLUDEDIR)
 .PHONY= all clean remove help # test
 
@@ -93,11 +93,16 @@ test_CFB: main
 	@make clean
 
 test_GCM: main
-### Nist test : 
-	@./aes -i ./Tests/GCM_clair.txt -o ./Tests/GCM_chiffre -m GCM -I cafebabefacedbaddecaf888 -k feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308 -A feedfacedeadbeeffeedfacedeadbeefabaddad2
-	@head --lines=-2 ./Tests/GCM_chiffre | xxd -p
-	@tail -n 1 ./Tests/GCM_chiffre
+	@./aes -i ./Tests/alice.sage -o ./Tests/alice.crypt -m GCM -I aaaaaaaaaaaaaaaaaaaaaaaa -A feedfacedeadbeeffeedfacedeadbeefabaddad2
+	@tail -n 1 ./Tests/alice.crypt
 	@echo ""
+	@./aes -d -i ./Tests/alice.crypt -o ./Tests/alice.decrypt -m GCM -I aaaaaaaaaaaaaaaaaaaaaaaa -A feedfacedeadbeeffeedfacedeadbeefabaddad2
+	@( if [[ ! '$(diff -q ./Tests/alice.sage ./Tests/alice.decrypt)' = '' ]]; \
+		then echo "Erreur lors du chiffrement/dechiffrement"; \
+	  else \
+	  	echo "Chiffrement/Dechiffrement réussi sans erreurs"; \
+	  fi \
+	)
 	@make clean
 
 help: 

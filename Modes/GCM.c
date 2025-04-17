@@ -164,7 +164,7 @@ void GCTR_encrypt(FILE* fileIn, FILE* fileOut,  uint8_t* key,  int Nk, uint8_t I
     free(w);
 }
 
-void GCM_encrypt( FILE* fileIn,  FILE* fileOut,  uint8_t* key,  int Nk, uint8_t* IV, int lenIV, uint8_t* AD, int lenAD){
+void GCM_encrypt( FILE* fileIn,  FILE* fileOut,  uint8_t* key,  int Nk, uint8_t* IV, uint8_t* AD, int lenAD){
     int Nr = Nk + 6;
 
     // Compute round key
@@ -239,7 +239,6 @@ void GCTR_decrypt(FILE* fileIn, FILE* fileOut,  uint8_t* key,  int Nk, uint8_t I
         // Authentification Tag
         blockXOR(X,in);
         product(X,H,X);
-        printf("X_%d = ",index/16 + 1);for(int i=0;i<16;i++){printf("%02hhx",X[i]);}printf("\n");
 
         inc32(CB);
         index += 16;
@@ -260,7 +259,6 @@ void GCTR_decrypt(FILE* fileIn, FILE* fileOut,  uint8_t* key,  int Nk, uint8_t I
         // Authentification Tag
         blockXOR(X,in);
         product(X,H,X);
-        printf("X_%d = ",index/16);for(int i=0;i<16;i++){printf("%02hhx",X[i]);}printf("\n");
     }
 
     uint64_t lenA = (uint64_t) lenAD*8;
@@ -273,11 +271,10 @@ void GCTR_decrypt(FILE* fileIn, FILE* fileOut,  uint8_t* key,  int Nk, uint8_t I
 
     blockXOR(X,concat);
     product(X,H,X);
-    printf("X_end = ");for(int i=0;i<16;i++){printf("%02hhx",X[i]);}printf("\n");
     free(w);
 }
 
-void GCM_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk, uint8_t* IV, int lenIV, uint8_t* AD, int lenAD){
+void GCM_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk, uint8_t* IV, uint8_t* AD, int lenAD){
     int Nr = Nk + 6;
 
     // Get size of the input file
@@ -287,11 +284,11 @@ void GCM_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk, uint8_t* IV,
     // Extract the tag
     uint8_t TAG[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     long index_tag = sizeFileIn-3;
-    char *read_tag = malloc(sizeof(char) * 3);
-    read_tag[0] = 'a'; read_tag[1] = 'a'; read_tag[2] = 'a';
+    char *read_tag = malloc(sizeof(char) * 4);
+    read_tag[0] = 'a'; read_tag[1] = 'a'; read_tag[2] = 'a'; read_tag[3] = '\0';
     fseek(fileIn,-3,SEEK_CUR);
-    while(index_tag >= 3 && strcmp(read_tag,"Tag") != 0){
-        fseek(fileIn, -1, SEEK_CUR);
+    while(index_tag >= 3 && strcmp(read_tag,"Tag") != 0){ // We start from the end of the file and stop when we find "Tag"
+        fseek(fileIn, -1, SEEK_CUR); 
         fread(read_tag,1,3,fileIn);
         fseek(fileIn, -3,SEEK_CUR);
         index_tag -= 1;
@@ -335,7 +332,6 @@ void GCM_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk, uint8_t* IV,
         memcpy(AD_,AD,16);
         blockXOR(X,AD_);
         product(X,H,X);
-        printf("X_A = ");for(int i=0;i<16;i++){printf("%02hhx",X[i]);}printf("\n");
         AD += 16;
         index += 16;
     }
@@ -345,7 +341,6 @@ void GCM_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk, uint8_t* IV,
         for(int i=left;i<16;i++){AD_[i] = 0;}
         blockXOR(X,AD_);
         product(X,H,X);
-        printf("X_A = ");for(int i=0;i<16;i++){printf("%02hhx",X[i]);}printf("\n");
     }
 
     GCTR_decrypt(fileIn,fileOut,key,Nk,ICB,X,H,lenAD,index_tag);
@@ -353,8 +348,6 @@ void GCM_decrypt(FILE* fileIn, FILE* fileOut, uint8_t *key, int Nk, uint8_t* IV,
     AES_encrypt(J0,J0,w,Nk);
 
     blockXOR(X,J0);
-    printf("X   : ");for(int i=0;i<16;i++){printf("%02hhx",X[i]);}printf("\n");
-    printf("Tag : ");for(int i=0;i<16;i++){printf("%02hhx",TAG[i]);}printf("\n");
     if(memcmp(X,TAG,16)){
         fprintf(stderr,"The tags don't match\n");
         exit(EXIT_FAILURE);

@@ -84,7 +84,7 @@ int IVExtraction(char *stringIV, uint8_t IV[16]){
         index += 2;
         size += 1;
     }
-    if((size != 12) || (size == 16 && (stringIV[index] != '\0' && stringIV[index + 1] != '\0'))){
+    if((size != 12) || (size == 16 && stringIV[index] != '\0')){ 
         free(currentHex);
         fprintf(stderr,"The IV must be of size 128 bits for mode CBC, CFB and 96 bits for GCM\n");
         exit(EXIT_FAILURE);
@@ -307,9 +307,9 @@ int main(int argc, char **argv){
                 IV_GCM[i] = IV[i];
             }
             if(operation == ENCRYPT){
-                GCM_encrypt(fileIn,fileOut,key,Nk,IV_GCM,lenIV,AD,lenAD);
+                GCM_encrypt(fileIn,fileOut,key,Nk,IV_GCM,AD,lenAD);
             } else{
-                GCM_decrypt(fileIn,fileOut,key,Nk,IV_GCM,lenIV,AD,lenAD);
+                GCM_decrypt(fileIn,fileOut,key,Nk,IV_GCM,AD,lenAD);
             }
             free(IV_GCM);
             free(AD);

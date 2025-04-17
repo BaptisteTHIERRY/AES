@@ -1,4 +1,5 @@
 #include "test.h"
+#include <unistd.h>
 
 void handleError(char* str, FILE* fileIn, FILE* fileOut, uint8_t* key){
     if(fileIn != NULL){fclose(fileIn);}
@@ -41,8 +42,9 @@ int main(){
 
     //time_t time_end = time(NULL);
     gettimeofday(&stop, NULL);
+    // start.tv_sec : secondes , start.tv_usec : millisecondes
     double duration = ((stop.tv_sec - start.tv_sec)*1000000 + (stop.tv_usec - start.tv_usec))/((double) 1000000);
-    printf("Time to encrypt 100 times the files alice.sage : %lf sec\n",duration);
+    printf("\nTime to encrypt 100 times the files alice.sage : %lf sec\n",duration);
     
     fclose(fileIn);
     fclose(fileOut);
